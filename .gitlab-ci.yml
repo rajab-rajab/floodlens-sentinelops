@@ -1,0 +1,77 @@
+image: python:3.12-slim
+
+stages:
+  - validate
+  - test
+  - secure
+  - package
+  - staging
+  - verify
+  - production
+
+variables:
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTHONUNBUFFERED: "1"
+
+validate_evidence_contract:
+  stage: validate
+  script:
+    - python scripts/run_analysis.py fixtures/demo-manifest.json --output artifacts/validated-report.json
+  artifacts:
+    when: always
+    paths:
+      - artifacts/validated-report.json
+
+test_analysis_core:
+  stage: test
+  script:
+    - python -m unittest discover -s tests -v
+
+secret_policy_gate:
+  stage: secure
+  script:
+    - "! grep -RInE '(AKIA[0-9A-Z]{16}|BEGIN (RSA |OPENSSH )?PRIVATE KEY|QLOO_API_KEY=.+)' --exclude-dir=.git --exclude=.gitlab-ci.yml ."
+    - test -f LICENSE
+    - test -f README.md
+
+package_review_evidence:
+  stage: package
+  needs: [validate_evidence_contract, test_analysis_core]
+  script:
+    - mkdir -p release
+    - cp artifacts/validated-report.json release/situation-report.json
+    - cp -r dist release/dashboard
+    - cp README.md release/README.md
+  artifacts:
+    expire_in: 14 days
+    paths:
+      - release/
+
+deploy_staging:
+  stage: staging
+  needs: [package_review_evidence]
+  environment:
+    name: staging
+  script:
+    - echo "Staging package prepared. Connect this job to your approved hosting target."
+    - test -f release/situation-report.json
+  artifacts:
+    paths:
+      - release/
+
+smoke_test_staging_package:
+  stage: verify
+  needs: [deploy_staging]
+  script:
+    - python -c "import json; r=json.load(open('release/situation-report.json')); assert r['analysis_status']=='complete'; assert 'situation_report' in r; print('smoke test passed')"
+
+promote_production:
+  stage: production
+  needs: [smoke_test_staging_package]
+  when: manual
+  allow_failure: false
+  environment:
+    name: production
+  script:
+    - echo "Human-approved production promotion. Configure deployment credentials only as protected GitLab variables."
+    - test -f release/situation-report.json

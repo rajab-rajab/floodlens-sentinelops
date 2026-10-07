@@ -1,0 +1,1 @@
+import * as cdk from 'aws-cdk-lib'; import { FloodLensStack } from '../lib/floodlens-stack'; const app=new cdk.App(); new FloodLensStack(app,'FloodLensStack',{allowedOrigin:app.node.tryGetContext('allowedOrigin') as string});

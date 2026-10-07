@@ -1,0 +1,1 @@
+exports.handler=async e=>{for(const r of e.Records){const j=JSON.parse(r.body);console.log(JSON.stringify({event:'analysis_received',jobId:j.jobId}));/* Add reviewed model inference here; never invent impact figures. */}};

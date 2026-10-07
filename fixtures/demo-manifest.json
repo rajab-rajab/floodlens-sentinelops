@@ -1,0 +1,18 @@
+{
+  "before": {"datetime": "2026-08-14T05:30:00Z", "sat:relative_orbit": 72, "values": [[-8, -7, -8], [-6, -7, -6], [-8, -7, -8]]},
+  "after": {"datetime": "2026-08-26T05:30:00Z", "sat:relative_orbit": 72, "values": [[-8, -11, -8], [-9, -12, -6], [-8, -7, -11]]},
+  "change_threshold": 2.0,
+  "assets": [
+    {"id": "road-r1", "kind": "road", "cells": [[0, 1], [1, 1]]},
+    {"id": "bridge-b1", "kind": "bridge", "cells": [[1, 1]]},
+    {"id": "clinic-c1", "kind": "building", "cells": [[2, 0]]}
+  ],
+  "roads": [
+    {"from": "Trishuli Bazaar", "to": "Dhunche"},
+    {"from": "Dhunche", "to": "Timure", "blocked": true},
+    {"from": "Timure", "to": "Syabrubesi"}
+  ],
+  "response_hub": "Trishuli Bazaar",
+  "settlements": ["Trishuli Bazaar", "Dhunche", "Timure", "Syabrubesi"],
+  "reference_damage_maps_used_as_input": false
+}
